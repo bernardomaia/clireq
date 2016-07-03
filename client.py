@@ -4,6 +4,10 @@
 import sys
 from struct import pack, unpack, calcsize
 import socket
+import atexit
+
+def exit(s):
+    s.close()
 
 if len(sys.argv) < 2:
     print "Error: inform a valid servent address!"
@@ -14,7 +18,7 @@ else:
     
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(4)
-    
+    atexit.register(exit, s)
     while True:
         key = raw_input("Type the key to seach: ")
         
@@ -28,5 +32,3 @@ else:
                 print address,"respondeu:", corpo
         except socket.timeout:
             print "\nTimeout!!\n"
-        
-    s.close()
