@@ -27,9 +27,9 @@ else:
         
         try:
             while True:
-                data, address = s.recvfrom(calcsize('!H100s'))
+                data, address2 = s.recvfrom(calcsize('!H100s'))
                 tipo, corpo = unpack("!H100s", data)
                 if (tipo == 3):
-                    print address,"respondeu:", corpo
+                    print address2,"respondeu:", corpo
         except socket.timeout:
             print "\nTimeout!!\n"
