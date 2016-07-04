@@ -26,9 +26,10 @@ else:
         s.sendto(pack('!H20s', 1, key), address)
         
         try:
-            data, address = s.recvfrom(calcsize('!H100s'))
-            tipo, corpo = unpack("!H100s", data)
-            if (tipo == 3):
-                print address,"respondeu:", corpo
+            while True:
+                data, address = s.recvfrom(calcsize('!H100s'))
+                tipo, corpo = unpack("!H100s", data)
+                if (tipo == 3):
+                    print address,"respondeu:", corpo
         except socket.timeout:
             print "\nTimeout!!\n"
