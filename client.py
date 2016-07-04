@@ -1,5 +1,5 @@
 ###################################################
-#            TP3: P2P key-value storage           #
+#            TP3: P2P key-value store             #
 #        Bernardo Maia e Fabricio Ferreira        #
 #              Julho de 2016 - UFMG               #
 ###################################################
@@ -31,7 +31,7 @@ s.settimeout(4)
 atexit.register(exitFunction, s)
 
 while True:
-    key = raw_input("Type the key to seach: ")
+    key = raw_input("Type the key to search: ")
     
     # send <CLIREQ (2 bytes), key (20 bytes)>
     s.sendto(pack('!H20s', 1, key), serventAddress)
@@ -43,6 +43,7 @@ while True:
         
         if retransmitted:
             print "Retransmitting..."
+            s.sendto(pack('!H20s', 1, key), serventAddress)
         
         try:
             # receive responses

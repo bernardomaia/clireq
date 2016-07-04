@@ -1,5 +1,5 @@
 ###################################################
-#            TP3: P2P key-value storage           #
+#            TP3: P2P key-value store             #
 #        Bernardo Maia e Fabricio Ferreira        #
 #              Julho de 2016 - UFMG               #
 ###################################################
