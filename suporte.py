@@ -18,24 +18,15 @@ def lerArquivo(arq):
     valores = []
 
     for l in linhas:
-        chave, valor = l.split('\t')#divide a linha pela tabulacao
-
+        ls = l.split('\t')#divide a linha pelia tabulacao
+        chave = ls[0]
+        valor = '\t'.join(ls[1:])
         if chave in chaves:# caso a chave ja exista  na lista de chaves, seu valor e atualizado sem adicao de nova chave
-            valores[chaves.index(chave)] = valor 
-            if len(valor) > 100:# corta parte do valor caso seu tamanho exceda 100 caracteres
-                valores[chaves.index(chave)] = valor[0:100] 
-            else:
-                valores[chaves.index(chave)] = valor 
+            valores[chaves.index(chave)] = valor[0:100]
+             
         else: #adiciona chave e valor as  respectivas listas
-            if len(chave) > 20 :# corta parte da chave caso seu tamanho exceda 20 caracteres
-                chaves.append(chave[0:20])
-            else:
-                chaves.append(chave)
-
-            if len(valor) > 100:# trunca parte do valor caso seu tamanho exceda 100 caracteres
-                valores.append(valor[0:100])
-            else:
-                valores.append(valor)
+            chaves.append(chave[0:20])
+            valores.append(valor[0:100])
 
     a.close()
     return chaves, valores
