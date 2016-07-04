@@ -1,82 +1,116 @@
+###################################################
+#            TP3: P2P key-value storage           #
+#        Bernardo Maia e Fabricio Ferreira        #
+#              Julho de 2016 - UFMG               #
+###################################################
+
+import atexit
 import socket
 from struct import pack, unpack
 import sys
 
-from suporte import printDic, lerArquivo
+from suporte import printDic, readInputFile
 
-if len(sys.argv) < 4:
-    print "Error: do something"
+
+# close the socket before exiting
+def exit(s):
+    s.close()
+
+# requires at lest 3 arguments, besides filename
+if len(sys.argv) < 4 or len(sys.argv) > 13:
+    print "Error: wrong number of arguments!"
     sys.exit()
 
 SEQ_NO = 0
-neighbors = []
-history = []
+
+# stores the (ip:port) of neighbors
+NEIGHBORS = []
+
+# stores the history of messages received
+HISTORY = []
+
+# key-value dictionary
+KEYS = []
+VALUES = []
 
 ip, port = sys.argv[1].split(":")
 port = int(port)
-address = (ip, port)
+myAddress = (ip, port)
+
+# input file with the key-value list
 inputFile = sys.argv[2]
+KEYS, VALUES = readInputFile(inputFile)
+
+# append all neighbors
 for i in range (3, len(sys.argv)):
     ipN, portN = sys.argv[i].split(":")
     portN = int(portN)
-    if (ipN,portN) not in neighbors:
-        neighbors.append((ipN, portN))
+    if (ipN,portN) not in NEIGHBORS and (ipN,portN) != myAddress:
+        NEIGHBORS.append((ipN, portN))
 
-# Create a UDP/IP socket
+# create an UDP/IP socket and bind it to the port
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.bind(myAddress)
 
-# Bind the socket to the port
-print 'starting up on %s port %s' % address
-s.bind(address)
+# register at exit function
+atexit.register(exit, s)
 
-chaves, valores = lerArquivo(inputFile)
-
-print "Vizinhos"
-print neighbors
-print "Dicionario"
-printDic(chaves, valores)
+# print "Vizinhos"
+# print neighbors
+# print "Dicionario"
+# printDic(KEYS, VALUES)
 
 while True:
-    print history
-    print >>sys.stderr, '\nwaiting to receive message'
-    data, address = s.recvfrom(4096)
+#     print HISTORY
+#     print >>sys.stderr, '\nwaiting to receive message'
+    data, addressSender = s.recvfrom(4096)
     tipo = int(unpack("!H",data[:2])[0])
     
+    # CLIREQ: create a query and send it to all neighbors
     if (tipo == 1):
-        print "CLIREQ"
-        _,key = unpack("!H20s",data)
+#         print "CLIREQ"
+        tipo, key = unpack("!H20s",data)
         key = key.rstrip('\0')
-        if key in chaves:
-            print "Eu tenho a chave", key
-            s.sendto(pack("!H121s", 3, key+"\t"+valores[chaves.index(key)]), address)
+        if key in KEYS:
+#             print "Eu tenho a chave", key
+            s.sendto(pack("!H121s", 3, key+"\t"+VALUES[KEYS.index(key)]), addressSender)
         
-        ip1, ip2, ip3, ip4 = address[0].split(".")
+        # it was necessary to isolate each ip part to pack each into 1 byte value
+        ip1, ip2, ip3, ip4 = addressSender[0].split(".")
         ip1 = int(ip1)
         ip2 = int(ip2)
         ip3 = int(ip3)
         ip4 = int(ip4)
-        portClient = address[1]
-        for n in neighbors:
-            print "Eu enviei para o vizinho", n
+        portClient = addressSender[1]
+        
+        for n in NEIGHBORS:
+#             print "Eu enviei para o vizinho", n
             s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
-        history.append((ip1, ip2, ip3, ip4, portClient, SEQ_NO, key))
+        
+        HISTORY.append((ip1, ip2, ip3, ip4, portClient, SEQ_NO, key))
         SEQ_NO += 1
-            
+    
+    # QUERY: test if it has the key-value and send query to all other neighbors        
     if (tipo == 2):
-        print "QUERY"
+#         print "QUERY"
         tipo, ttl, ip1, ip2, ip3, ip4, port, seqNo, key = unpack("!HHBBBBHI20s", data)
         key = key.rstrip('\0')
-        if (ip1, ip2, ip3, ip4, port, seqNo, key) not in history:
-            history.append((ip1, ip2, ip3, ip4, port, seqNo, key))
-            key = key.rstrip('\0')
-            if key in chaves:
-                print "Eu tenho a chave", key
+        
+        # have I received this query before?
+        if (ip1, ip2, ip3, ip4, port, seqNo, key) not in HISTORY:
+            HISTORY.append((ip1, ip2, ip3, ip4, port, seqNo, key))
+            
+            # send RESPONSE if I have it
+            if key in KEYS:
+#                 print "Eu tenho a chave", key
                 ip = str(ip1)+"."+str(ip2)+"."+str(ip3)+"."+str(ip4)
-                s.sendto(pack("!H121s", 3, key+"\t"+valores[chaves.index(key)]), (ip, port))
+                s.sendto(pack("!H121s", 3, key+"\t"+VALUES[KEYS.index(key)]), (ip, port))
+            
+            # share with neighbors
             if (ttl > 1):
-                for n in neighbors:
-                    if address != n:
-                        print "Eu enviei para o vizinho", n
-                        s.sendto(pack("!HHBBBBHI20s",tipo,ttl-1,ip1, ip2, ip3, ip4, port, seqNo, key), n)
-        else:
-            print "Ja tenho essa mensagem no historico"
+                for n in NEIGHBORS:
+                    if addressSender != n:
+#                         print "Eu enviei para o vizinho", n
+                        s.sendto(pack("!HHBBBBHI20s", tipo,ttl-1,ip1, ip2, ip3, ip4, port, seqNo, key), n)
+#         else:
+#             print "Ja tenho essa mensagem no historico"

@@ -1,8 +1,11 @@
-# A CHAVE TEM ATEH 20 BYTES
-# O VALOR TEM ATEH 100 BYTES
+###################################################
+#            TP3: P2P key-value storage           #
+#        Bernardo Maia e Fabricio Ferreira        #
+#              Julho de 2016 - UFMG               #
+###################################################
 
 import sys
-from struct import pack, unpack, calcsize
+from struct import pack, unpack
 import socket
 import atexit
 

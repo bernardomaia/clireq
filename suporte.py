@@ -2,7 +2,7 @@ def printDic(k, v):
     for i in range(0, len(k)):
         print k[i]+"\t"+v[i]
 
-def lerArquivo(arq):
+def readInputFile(arq):
     
     a = open(arq, "r")
     linhas = a.readlines()
