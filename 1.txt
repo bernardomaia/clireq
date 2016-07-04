@@ -1,4 +1,4 @@
-# python servent.py 127.0.0.1:10001 1.txt 127.0.0.1:10002
+# python servent.py 127.0.0.1:10001 1.txt 127.0.0.1:10002 127.0.0.1:10003
 # Europe
 France	The capital is Paris. They love revolution. 
 Germany	The capital is Berlin. They love beer.

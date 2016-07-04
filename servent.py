@@ -39,35 +39,34 @@ while True:
     print >>sys.stderr, '\nwaiting to receive message'
     data, address = s.recvfrom(4096)
     tipo = int(unpack("!H",data[:2])[0])
+    
     if (tipo == 1):
         print "CLIREQ"
         _,key = unpack("!H20s",data)
-        ip1, ip2, ip3, ip4 = address[0].split(".")
-        ip1 = int(ip1)
-        ip2 = int(ip2)
-        ip3 = int(ip3)
-        ip4 = int(ip4)
-        portClient = address[1]
-        for n in neighbors:
-            s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4,portClient, SEQ_NO, key), n)
-            SEQ_NO += 1
+        key = key.rstrip('\0')
+        if key in chaves:
+            print "Eu tenho a chave", key
+            s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), address)
+        else:
+            ip1, ip2, ip3, ip4 = address[0].split(".")
+            ip1 = int(ip1)
+            ip2 = int(ip2)
+            ip3 = int(ip3)
+            ip4 = int(ip4)
+            portClient = address[1]
+            for n in neighbors:
+                s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
+                SEQ_NO += 1
             
     if (tipo == 2):
         print "QUERY"
         tipo, ttl, ip1, ip2, ip3, ip4, port, seqNo, key = unpack("!HHBBBBHI20s", data)
+        key = key.rstrip('\0')
         if key in chaves:
+            print "Eu tenho a chave", key
             ip = str(ip1)+"."+str(ip2)+"."+str(ip3)+"."+str(ip4)
-            s.sendto(pack("!H100s", 3, valores[chaves.index(key)]), (ip, port))
-# while True:
-#     print >>sys.stderr, '\nwaiting to receive message'
-#     
-#     data, address = sock.recvfrom(4096)    
-#     tipo, mensagem = unpack('!H20s', data)
-#     mensagem = mensagem.rstrip('\0')
-#     if tipo == 1:
-#         if mensagem in chaves:
-#             sent = sock.sendto(pack("!H100s",3, valores[chaves.index(mensagem)]), address)
-#         else: 
-#             sent = sock.sendto(pack("!H100s",3,"No encontrado"), address)
-# 
-#         print >>sys.stderr, 'sent %s bytes back to %s' % (sent, address)
+            s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), (ip, port))
+        else:
+            for n in neighbors:
+                if address != n:
+                    s.sendto(pack("!HHBBBBHI20s",2,ttl-1,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
