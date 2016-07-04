@@ -1,4 +1,4 @@
-# python servent.py 127.0.0.1:10003 3.txt 127.0.0.1:10001
+# python servent.py 127.0.0.1:10003 3.txt 127.0.0.1:10001 127.0.0.1:10002
 # Asia
 China	The capital is Beijing. They love rice. 
 India	The capital is New Delhi. They love to pray.

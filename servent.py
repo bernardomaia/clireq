@@ -76,3 +76,5 @@ while True:
                     if address != n:
                         print "Eu enviei para o vizinho", n
                         s.sendto(pack("!HHBBBBHI20s",tipo,ttl-1,ip1, ip2, ip3, ip4, port, seqNo, key), n)
+        else:
+            print "Ja tenho essa mensagem no historico"
