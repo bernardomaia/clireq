@@ -13,7 +13,7 @@ from suporte import printDic, readInputFile
 
 
 # close the socket before exiting
-def exit(s):
+def exitFunction(s):
     s.close()
 
 # requires at lest 3 arguments, besides filename
@@ -52,8 +52,8 @@ for i in range (3, len(sys.argv)):
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(myAddress)
 
-# register at exit function
-atexit.register(exit, s)
+# register the exit function
+atexit.register(exitFunction, s)
 
 # print "Vizinhos"
 # print neighbors
