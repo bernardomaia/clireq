@@ -10,6 +10,7 @@ if len(sys.argv) < 4:
 
 SEQ_NO = 0
 neighbors = []
+history = []
 
 ip, port = sys.argv[1].split(":")
 port = int(port)
@@ -55,6 +56,7 @@ while True:
         ip4 = int(ip4)
         portClient = address[1]
         for n in neighbors:
+            print "Eu enviei para o vizinho", n
             s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
             SEQ_NO += 1
             
@@ -66,7 +68,8 @@ while True:
             print "Eu tenho a chave", key
             ip = str(ip1)+"."+str(ip2)+"."+str(ip3)+"."+str(ip4)
             s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), (ip, port))
-        else:
+        if (ttl > 1):
             for n in neighbors:
                 if address != n:
+                    print "Eu enviei para o vizinho", n
                     s.sendto(pack("!HHBBBBHI20s",2,ttl-1,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
