@@ -47,16 +47,16 @@ while True:
         if key in chaves:
             print "Eu tenho a chave", key
             s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), address)
-        else:
-            ip1, ip2, ip3, ip4 = address[0].split(".")
-            ip1 = int(ip1)
-            ip2 = int(ip2)
-            ip3 = int(ip3)
-            ip4 = int(ip4)
-            portClient = address[1]
-            for n in neighbors:
-                s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
-                SEQ_NO += 1
+        
+        ip1, ip2, ip3, ip4 = address[0].split(".")
+        ip1 = int(ip1)
+        ip2 = int(ip2)
+        ip3 = int(ip3)
+        ip4 = int(ip4)
+        portClient = address[1]
+        for n in neighbors:
+            s.sendto(pack("!HHBBBBHI20s",2,3,ip1, ip2, ip3, ip4, portClient, SEQ_NO, key), n)
+            SEQ_NO += 1
             
     if (tipo == 2):
         print "QUERY"
