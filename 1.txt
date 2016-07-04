@@ -1,0 +1,6 @@
+# python servent.py 127.0.0.1:10001 1.txt 127.0.0.1:10002
+# Europe
+France	The capital is Paris. They love revolution. 
+Germany	The capital is Berlin. They love beer.
+England	The capital is London. They love the EU.
+Vatican	The capital is the church. They love children.
