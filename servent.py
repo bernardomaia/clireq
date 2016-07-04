@@ -37,6 +37,7 @@ print "Dicionario"
 printDic(chaves, valores)
 
 while True:
+    print history
     print >>sys.stderr, '\nwaiting to receive message'
     data, address = s.recvfrom(4096)
     tipo = int(unpack("!H",data[:2])[0])
@@ -47,7 +48,7 @@ while True:
         key = key.rstrip('\0')
         if key in chaves:
             print "Eu tenho a chave", key
-            s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), address)
+            s.sendto(pack("!H121s", 3, key+"\t"+valores[chaves.index(key)]), address)
         
         ip1, ip2, ip3, ip4 = address[0].split(".")
         ip1 = int(ip1)
@@ -64,13 +65,14 @@ while True:
     if (tipo == 2):
         print "QUERY"
         tipo, ttl, ip1, ip2, ip3, ip4, port, seqNo, key = unpack("!HHBBBBHI20s", data)
+        key = key.rstrip('\0')
         if (ip1, ip2, ip3, ip4, port, seqNo, key) not in history:
             history.append((ip1, ip2, ip3, ip4, port, seqNo, key))
             key = key.rstrip('\0')
             if key in chaves:
                 print "Eu tenho a chave", key
                 ip = str(ip1)+"."+str(ip2)+"."+str(ip3)+"."+str(ip4)
-                s.sendto(pack("!H100s", 3, key+"\t"+valores[chaves.index(key)]), (ip, port))
+                s.sendto(pack("!H121s", 3, key+"\t"+valores[chaves.index(key)]), (ip, port))
             if (ttl > 1):
                 for n in neighbors:
                     if address != n:

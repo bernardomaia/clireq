@@ -24,12 +24,20 @@ else:
         
         # send <CLIREQ (2 bytes), key (20 bytes)>
         s.sendto(pack('!H20s', 1, key), address)
-        
-        try:
-            while True:
-                dataResponse, addressResponse = s.recvfrom(calcsize('!H100s'))
-                tipo, corpo = unpack("!H100s", dataResponse)
-                if (tipo == 3):
-                    print addressResponse,"respondeu:", corpo
-        except socket.timeout:
-            print "\nTimeout!!\n"
+        stop = False
+        retransmitted = False
+        while (not stop):
+            if retransmitted:
+                print "Retransmitting..."
+            try:
+                while True:
+                    dataResponse, addressResponse = s.recvfrom(4096)
+                    tipo, corpo = unpack("!H121s", dataResponse)
+                    if (tipo == 3):
+                        print addressResponse,"respondeu:", corpo
+                        stop = True
+            except socket.timeout:
+                print "\nTimeout!!\n"
+                if retransmitted:
+                    stop = True
+                retransmitted = not retransmitted
