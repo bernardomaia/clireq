@@ -9,8 +9,44 @@ import socket
 from struct import pack, unpack
 import sys
 
-from suporte import printDic, readInputFile
+# input file processing function
+def readInputFile(arq):
+    
+    keys = []
+    values = []
+    
+    a = open(arq, "r")
+    lines = a.readlines()
+    a.close()
+    
+    i = 0
+    while (i < len(lines)):
+        # revomes lines begining with #
+        if(lines[i][0] == '#'):
+            lines.remove(lines[i])
+            i = i-1
+        i = i+1
 
+    for l in lines:
+        ls = l.split('\t')
+        key = ls[0]
+        value = '\t'.join(ls[1:])
+        
+        # update if existent key
+        if key in keys:
+            values[keys.index(key)] = value[0:100]
+    
+        # add key-value if non-existent
+        else:
+            keys.append(key[0:20])
+            values.append(value[0:100])
+            
+    return keys, values
+
+# dictionary printing function
+def printDic(k, v):
+    for i in range(0, len(k)):
+        print k[i]+"\t"+v[i]
 
 # close the socket before exiting
 def exitFunction(s):
